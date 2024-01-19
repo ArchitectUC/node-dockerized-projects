@@ -1,29 +1,31 @@
 pipeline {
     agent any
-    environment {
-        // Define any environment variables needed for your build
-    }
     stages {
-        stage("checkout") {
+        stage("Checkout") {
             steps {
-                checkout scm
+                // Use the credential ID "Gitpass" for Git authentication
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: 'main']],
+                          doGenerateSubmoduleConfigurations: false, 
+                          extensions: [[$class: 'CleanCheckout']], 
+                          submoduleCfg: [], 
+                          userRemoteConfigs: [[credentialsId: 'Gitpass', url: 'https://github.com/UrysKingdom/node-dockerized-projects.git']]])
             }
         }
 
-        stage("test") {
+        stage("Test") {
             steps {
-                script {
-                    // It's common to use the 'npm ci' command for installing dependencies in CI environments
-                    sh 'npm ci'
-                    sh 'npm test'
-                }
+                sh 'sudo npm install'
+                sh 'npm test'
             }
         }
 
-        stage("build") {
+        stage("Build") {
             steps {
                 sh 'npm run build'
             }
         }
+
+        // Add more stages as needed...
     }
 }
